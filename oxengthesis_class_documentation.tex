@@ -710,6 +710,29 @@ You can wrap text in``todo'' tags, so they appear in red colour in the PDF docum
 
 \todo{This text is in red colour, it reminds me of a task to complete}
 
+\subsection{Strikethrough text with different colour}
+
+
+As part of your thesis corrections, your examiners might ask you to remove some text from your thesis. It is often a good practice to cross the text, rather than remove it so the examiners can read the changes.
+
+To mark text to remove, you can simple do:
+
+\begin{lstlisting}[style=custom-latex]
+\st{Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ut interdum turpis. Praesent sed mi dolor. Fusce arcu ante, mattis fermentum ligula eleifend, pulvinar viverra orci.}
+\end{lstlisting}
+
+The result will be:
+
+
+\st{Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ut interdum turpis. Praesent sed mi dolor. Fusce arcu ante, mattis fermentum ligula eleifend, pulvinar viverra orci.}
+
+By default, text will be crossed with red colour. To change, simply put the code below in your document. You can use any colour defined by the ``xcolor'' package, such as blue, black, etc.
+
+\begin{lstlisting}[style=custom-latex]
+\setstcolor{blue}
+\end{lstlisting}
+
+
 
 \subsection{Formatting source code}
 

@@ -810,6 +810,24 @@ document. For example:
     \todo{Add a citation to reference the latest research}
 ```
 
+## Strikethrough text with different colour
+
+
+As part of your thesis corrections, your examiners might ask you to remove some text from your thesis. It is often a good practice to cross the text, rather than remove it so the examiners can read the changes.
+
+To mark text to remove, you can simple do:
+
+```latex
+\st{Text to be marked}
+```
+
+By default, text will be crossed with red colour. To change, simply put the code below in your document. You can use any colour defined by the ``xcolor'' package, such as blue, black, etc.
+
+```latex
+\setstcolor{blue}
+```
+
+
 
 ## Formatting source code
 

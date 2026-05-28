@@ -111,6 +111,9 @@
 \RequirePackage[base]{babel}
 \RequirePackage{lipsum}
 
+\RequirePackage{soul}
+\setstcolor{red}
+
 
 % Custom colours
 
