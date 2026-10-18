@@ -1,0 +1,68 @@
+%
+% File    : lecture_notes.tex
+% ____________________________________________________________________________
+%
+% DESCRIPTION :
+%
+% Main file for the lecture notes handout. Built on the OxEngThesis class
+% from https://github.com/maurovm/thesis_template (tracked as the "upstream"
+% git remote).
+%
+% To keep merges from upstream painless, do NOT edit the upstream files
+% (oxengthesis.cls, sample_dphil_thesis.tex, chap_*.tex, titlepage-*.tex, ...).
+% Everything specific to these notes lives in this file, in frontmatter/,
+% lectures/, figures/generated/ and code/.
+% ____________________________________________________________________________
+%
+
+
+% "report" skips the dedication, declaration and publications pages.
+% Latin Modern gives the classic LaTeX look (the class default is Carlito).
+% Symmetric margins suit a printed handout better than thesis binding margins.
+
+\documentclass[report, font=Latin Modern Roman, leftmargin=2.5cm, rightmargin=2.5cm]{oxengthesis}
+
+
+%
+% Point the class at our own front matter files instead of the upstream
+% sample files in the repository root. A page is only included if its file
+% exists, so create e.g. frontmatter/abstract.tex to add an abstract page.
+%
+
+\makeatletter
+\def\oxfordtitlefilename{frontmatter/titlepage}
+\def\abstractfilename{frontmatter/abstract}
+\def\acknowledgementsfilename{frontmatter/acknowledgements}
+\def\glossaryfilename{frontmatter/glossary}
+\def\bibliographyfilename{lectures/references}
+\makeatother
+
+
+%
+% Document metadata
+%
+
+\title       {Lecture Notes Title}
+\author      {Edward Phillips}
+\department  {Department of Engineering Science}
+\date        {Michaelmas Term, 2026}
+
+
+%
+% Document contents
+%
+
+\begin{document}
+
+\frontmatter
+\makefrontmatterpages
+
+\mainmatter
+
+\include{lectures/lecture_01}
+\include{lectures/lecture_02}
+
+\backmatter
+\listofreferences
+
+\end{document}
