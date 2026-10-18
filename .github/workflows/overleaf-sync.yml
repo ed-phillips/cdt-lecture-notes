@@ -30,7 +30,7 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: master
           fetch-depth: 0
@@ -42,13 +42,22 @@ jobs:
           git config user.name "Overleaf sync"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git remote add overleaf "$OVERLEAF_URL"
-          git fetch overleaf master
+
+          # Use whichever branch Overleaf's HEAD points at.
+          echo "Overleaf refs:"
+          git ls-remote --symref overleaf
+          branch=$(git ls-remote --symref overleaf HEAD | awk '/^ref:/ {sub("refs/heads/", "", $2); print $2}')
+          if [ -z "$branch" ]; then
+            echo "::error::Overleaf has no HEAD branch to sync with"
+            exit 1
+          fi
+          git fetch overleaf "$branch"
 
           # Overleaf's git history starts separately from GitHub's, so the
           # very first merge joins two unrelated histories.
           git merge --no-edit --allow-unrelated-histories \
-            -m "Merge changes from Overleaf" overleaf/master
+            -m "Merge changes from Overleaf" "overleaf/$branch"
 
           # Pushes made with GITHUB_TOKEN don't trigger this workflow again.
           git push origin HEAD:master
-          git push overleaf HEAD:master
+          git push overleaf "HEAD:$branch"
