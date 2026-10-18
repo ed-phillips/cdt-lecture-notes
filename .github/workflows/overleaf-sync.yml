@@ -55,8 +55,15 @@ jobs:
 
           # Overleaf's git history starts separately from GitHub's, so the
           # very first merge joins two unrelated histories.
-          git merge --no-edit --allow-unrelated-histories \
-            -m "Merge changes from Overleaf" "overleaf/$branch"
+          if ! git merge --no-edit --allow-unrelated-histories \
+            -m "Merge changes from Overleaf" "overleaf/$branch"; then
+            echo "::error::Merge conflict with Overleaf; nothing was pushed"
+            git merge --abort
+            echo "Files that differ (GitHub master vs Overleaf):"
+            git diff --stat --summary HEAD "overleaf/$branch"
+            git diff HEAD "overleaf/$branch" -- . ':!*.pdf' | head -200
+            exit 1
+          fi
 
           # Pushes made with GITHUB_TOKEN don't trigger this workflow again.
           git push origin HEAD:master
