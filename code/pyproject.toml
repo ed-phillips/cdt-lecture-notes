@@ -1,0 +1,16 @@
+[project]
+name = "lecture-figures"
+version = "0.1.0"
+description = "Code that generates the figures for the lecture notes"
+requires-python = ">=3.11"
+dependencies = [
+    "matplotlib>=3.8",
+    "numpy>=1.26",
+]
+
+[project.scripts]
+make-figures = "lecture_figures.make_figures:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
