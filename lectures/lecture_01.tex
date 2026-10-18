@@ -1,0 +1,23 @@
+\chapter{Introduction}
+\label{chap:lecture_01}
+
+
+\section{Overview}
+
+Placeholder text for the first lecture. Replace with your own content.
+Citations work as usual~\cite{bishop2006pattern}.
+
+
+\section{A figure generated from code}
+
+Figure~\ref{fig:example_signal} is produced by
+\texttt{code/figures/example\_signal.py}. Run \texttt{uv run make-figures}
+from the \texttt{code/} directory to regenerate it, then commit the PDF in
+\texttt{figures/generated/} so Overleaf picks it up.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{generated/example_signal}
+    \caption{A noisy sinusoid and its moving-average estimate.}
+    \label{fig:example_signal}
+\end{figure}
