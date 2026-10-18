@@ -4,11 +4,9 @@ from pathlib import Path
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib import font_manager
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 OUTPUT_DIR = REPO_ROOT / "figures" / "generated"
-FONT_DIR = REPO_ROOT / "fonts" / "carlito"
 
 # Text width of lecture_notes.tex: A4 (21cm) minus 2.5cm margins either side.
 TEXT_WIDTH_IN = 16.0 / 2.54
@@ -21,13 +19,15 @@ GRID = "#e4e3df"
 
 
 def apply_style() -> None:
-    """Use the document font (Carlito) and recessive axes for all plots."""
-    for font_file in FONT_DIR.glob("*.ttf"):
-        font_manager.fontManager.addfont(str(font_file))
-
+    """Use the document font (Computer/Latin Modern) and recessive axes for all plots."""
     mpl.rcParams.update(
         {
-            "font.family": "Carlito",
+            # cmr10 (Computer Modern) ships with matplotlib and matches the
+            # document's Latin Modern. It lacks a unicode minus sign, so tick
+            # labels are rendered with mathtext instead.
+            "font.family": "serif",
+            "font.serif": ["cmr10"],
+            "axes.formatter.use_mathtext": True,
             "mathtext.fontset": "cm",
             "font.size": 10,
             "axes.titlesize": 10,
