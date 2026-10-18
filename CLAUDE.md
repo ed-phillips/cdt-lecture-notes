@@ -79,9 +79,9 @@ collaborator on the Overleaf project, and to have their own Overleaf git token
 (Overleaf Account Settings → Git integration). After cloning from GitHub, run:
 
 ```bash
-git remote add overleaf https://git@git.overleaf.com/6ad4f1409bc2ef659dadeb11
+git remote add overleaf https://git@git.overleaf.com/6ad4f8b2585b36f9af880940
 git remote set-url --add --push origin https://github.com/ed-phillips/cdt-lecture-notes.git
-git remote set-url --add --push origin https://git@git.overleaf.com/6ad4f1409bc2ef659dadeb11
+git remote set-url --add --push origin https://git@git.overleaf.com/6ad4f8b2585b36f9af880940
 git fetch overleaf
 ```
 
