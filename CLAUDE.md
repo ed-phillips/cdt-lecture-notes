@@ -1,8 +1,8 @@
 # Lecture notes
 
 A LaTeX handout of lecture notes plus the Python code that generates its
-figures. The repo is synced to an Overleaf project via Overleaf's GitHub
-integration, and is a fork of https://github.com/maurovm/thesis_template
+figures. The repo is synced automatically with an Overleaf project by a
+GitHub Action (see "Collaborating" below), and is a fork of https://github.com/maurovm/thesis_template
 (the `oxengthesis` class, built on memoir).
 
 Several people may work on this, some editing directly in Overleaf and some
@@ -62,17 +62,21 @@ compiles.
 
 ## Collaborating and the Overleaf sync
 
-Overleaf only syncs with the `master` branch, and syncing is manual in both
-directions:
+The workflow `.github/workflows/overleaf-sync.yml` syncs `master` with the
+Overleaf project in both directions, using Overleaf's git integration:
 
-- Local → Overleaf: commit and push to `master`, then in Overleaf use Menu → GitHub → Pull changes.
-- Overleaf → local: in Overleaf, use Menu → GitHub → Push changes, then run `git pull`.
+- **GitHub → Overleaf:** this happens on every push to `master`, usually within a minute or two.
+- **Overleaf → GitHub:** this happens every 15 minutes, or straight away via Actions → Overleaf sync → Run workflow. These changes land as "Merge changes from Overleaf" commits on `master`.
+- **Conflicts:** if Overleaf edits conflict with GitHub edits, the run fails and nothing is pushed. To resolve it locally, add Overleaf as a remote (`git remote add overleaf https://git.overleaf.com/<project-id>`, using an Overleaf git token as the password). Then run `git pull` and `git pull overleaf master`, resolve the conflicts, and push to `origin`.
+- **Overleaf's GitHub menu:** don't use the manual GitHub → Pull/Push buttons in Overleaf. The workflow replaces them.
+- **Branches:** only `master` is synced. Other branches reach Overleaf once they are merged.
 
 Rules for agents and collaborators:
 
-- **Before starting work, run `git pull`.** If someone may have edited in Overleaf since the last sync, ask them to push from Overleaf first. Edits that are unsynced on both sides lead to merge conflicts.
+- **Before starting work, run `git pull`.** Overleaf edits arrive as commits on `master` at any time. If you need edits made in Overleaf in the last few minutes, run the workflow manually first.
 - Keep commits focused, e.g. one lecture or one figure each, so they are easy to review and to merge with Overleaf edits.
-- Larger changes from collaborators can go on a branch with a pull request. They only reach Overleaf once merged into `master`.
+- Larger changes from collaborators can go on a branch with a pull request.
+- Pushing to `master` publishes straight to the shared Overleaf project.
 - Don't commit build output (`*.aux`, `*.log`, `lecture_notes.pdf`). The root `.gitignore` handles this.
 - Don't push or merge into `master` without the repo owner's OK.
 

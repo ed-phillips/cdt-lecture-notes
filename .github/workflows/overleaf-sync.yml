@@ -1,0 +1,54 @@
+# Two-way sync between this repo's master branch and the Overleaf project,
+# using Overleaf's git integration (https://git.overleaf.com/<project-id>).
+#
+# Runs on every push to master, every 15 minutes, and on demand
+# (Actions tab -> Overleaf sync -> Run workflow). Each run merges Overleaf's
+# latest changes into master and then pushes master to both GitHub and
+# Overleaf. If the merge conflicts, the run fails without pushing anything;
+# resolve it locally (see CLAUDE.md) and push.
+#
+# Needs a repository secret OVERLEAF_TOKEN (Overleaf Account Settings ->
+# Git integration) and a repository variable OVERLEAF_PROJECT_ID.
+
+name: Overleaf sync
+
+on:
+  push:
+    branches: [master]
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: overleaf-sync
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Merge Overleaf changes and push to both sides
+        env:
+          OVERLEAF_URL: https://git:${{ secrets.OVERLEAF_TOKEN }}@git.overleaf.com/${{ vars.OVERLEAF_PROJECT_ID }}
+        run: |
+          git config user.name "Overleaf sync"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add overleaf "$OVERLEAF_URL"
+          git fetch overleaf master
+
+          # Overleaf's git history starts separately from GitHub's, so the
+          # very first merge joins two unrelated histories.
+          git merge --no-edit --allow-unrelated-histories \
+            -m "Merge changes from Overleaf" overleaf/master
+
+          # Pushes made with GITHUB_TOKEN don't trigger this workflow again.
+          git push origin HEAD:master
+          git push overleaf HEAD:master
