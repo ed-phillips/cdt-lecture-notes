@@ -1,9 +1,10 @@
 # Lecture notes
 
 A LaTeX handout of lecture notes plus the Python code that generates its
-figures. The repo is synced automatically with an Overleaf project by a
-GitHub Action (see "Collaborating" below), and is a fork of https://github.com/maurovm/thesis_template
-(the `oxengthesis` class, built on memoir).
+figures, kept in sync with an Overleaf project through git (see
+"Collaborating" below). It is based on https://github.com/maurovm/thesis_template
+(the `oxengthesis` class, built on memoir), which is tracked as the
+`upstream` remote.
 
 Several people may work on this, some editing directly in Overleaf and some
 through git with coding agents. Treat Overleaf as a second, equal source of
@@ -62,23 +63,35 @@ compiles.
 
 ## Collaborating and the Overleaf sync
 
-The workflow `.github/workflows/overleaf-sync.yml` syncs `master` with the
-Overleaf project in both directions, using Overleaf's git integration:
+There's no automation (no GitHub Actions). The Overleaf project is a plain
+git remote called `overleaf`, which uses Overleaf's git integration. Overleaf
+calls its branch `main`, and here it maps to `master`.
 
-- **GitHub → Overleaf:** this happens on every push to `master`, usually within a minute or two.
-- **Overleaf → GitHub:** this happens every 15 minutes, or straight away via Actions → Overleaf sync → Run workflow. These changes land as "Merge changes from Overleaf" commits on `master`.
-- **Conflicts:** if Overleaf edits conflict with GitHub edits, the run fails and nothing is pushed. To resolve it locally, add Overleaf as a remote (`git remote add overleaf https://git.overleaf.com/<project-id>`, using an Overleaf git token as the password). Then run `git pull` and `git pull overleaf master`, resolve the conflicts, and push to `origin`.
-- **Overleaf's GitHub menu:** don't use the manual GitHub → Pull/Push buttons in Overleaf. The workflow replaces them.
-- **Branches:** only `master` is synced. Other branches reach Overleaf once they are merged.
+- **Repo → Overleaf:** run `git push origin master && git push overleaf`. The `overleaf` remote is configured to push `master` to Overleaf's `main`. Changes show up in Overleaf straight away.
+- **Overleaf → repo:** run `git pull overleaf main`, then `git push origin master`.
+- **Conflicts:** resolve them locally as with any merge, then push to both remotes.
+- **Overleaf's GitHub menu:** don't use the GitHub sync buttons in Overleaf. The git remote replaces them.
+
+Setting up the remote on a new machine or for a new collaborator: they need to be
+a collaborator on the Overleaf project, and to have their own Overleaf git token
+(Overleaf Account Settings → Git integration). Then run:
+
+```bash
+git remote add overleaf https://git.overleaf.com/6ad4f1409bc2ef659dadeb11
+git config remote.overleaf.push refs/heads/master:refs/heads/main
+git fetch overleaf
+```
+
+When asked, give the username `git` and use the token as the password. Agents
+must never handle the token; the person types it in their own terminal.
 
 Rules for agents and collaborators:
 
-- **Before starting work, run `git pull`.** Overleaf edits arrive as commits on `master` at any time. If you need edits made in Overleaf in the last few minutes, run the workflow manually first.
+- **Before starting work, get up to date:** run `git pull origin master`, then `git pull overleaf main`, so that you pick up edits made in Overleaf.
+- **After committing, push to both remotes** (see above), but only with the repo owner's OK.
 - Keep commits focused, e.g. one lecture or one figure each, so they are easy to review and to merge with Overleaf edits.
-- Larger changes from collaborators can go on a branch with a pull request.
-- Pushing to `master` publishes straight to the shared Overleaf project.
+- Larger changes from collaborators can go on a branch with a pull request. They reach Overleaf once they are merged into `master` and pushed.
 - Don't commit build output (`*.aux`, `*.log`, `lecture_notes.pdf`). The root `.gitignore` handles this.
-- Don't push or merge into `master` without the repo owner's OK.
 
 Overleaf settings: Compiler = LuaLaTeX, Main document = `lecture_notes.tex`.
 
