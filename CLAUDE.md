@@ -12,6 +12,7 @@ edits (see "Collaborating" below).
 
 ## Layout
 
+- `README.md`: the guide for human collaborators. Keep it in step with this file when the workflow changes.
 - `lecture_notes.tex`: main file (the Overleaf main document). It holds the metadata, class options and the `\include` list of lectures.
 - `lectures/lecture_NN.tex`: one chapter per lecture. `lectures/references.bib` holds the bibliography.
 - `frontmatter/`: the title page, plus optional `abstract.tex`, `acknowledgements.tex` and `glossary.tex`. The class only includes a page if its file exists.
@@ -34,19 +35,29 @@ edits (see "Collaborating" below).
 
 - The document font is Latin Modern Roman, set via `font=` in the `\documentclass` options. The class default (Carlito) is overridden there. Maths uses Latin Modern Math (the class default).
 - Figures use matplotlib's bundled `cmr10` (Computer Modern) so they match the text. If the document font changes, update `apply_style()` in `code/src/lecture_figures/style.py` to match and regenerate all figures.
-- Other class options (`chapterstyle=`, `headingcolour=`, `11pt`/`12pt`, margins, and memoir options such as `article`) are documented in upstream's `README.md`, under "Package options".
+- Other class options (`chapterstyle=`, `headingcolour=`, `11pt`/`12pt`, margins, and memoir options such as `article`) are documented in `TEMPLATE_README.md` (upstream's README), under "Package options".
 
 ## Keeping in sync with upstream
 
 `upstream` is the remote for maurovm/thesis_template. Do **not** edit, move or
 delete upstream files (`oxengthesis.cls`, `sample_dphil_thesis.tex`, `chap_*.tex`,
-`appendix_*.tex`, `titlepage-*.tex`, the root front matter `.tex` files, `README.md`,
+`appendix_*.tex`, `titlepage-*.tex`, the root front matter `.tex` files, `TEMPLATE_README.md`,
 `.gitignore`, `compile_document.sh`, `figures/*.png`). Customise through
 class options and macro overrides in `lecture_notes.tex`, or through files in
 `frontmatter/`, instead. To pull upstream changes:
 
 ```bash
 git fetch upstream && git merge upstream/master
+```
+
+Upstream's `README.md` lives here as a copy, `TEMPLATE_README.md`, and our
+`README.md` is our own. Any upstream merge that touches their README therefore
+conflicts on `README.md`. To resolve it, keep ours and refresh the copy:
+
+```bash
+git checkout --ours README.md
+git show upstream/master:README.md > TEMPLATE_README.md
+git add README.md TEMPLATE_README.md
 ```
 
 ## Commands
