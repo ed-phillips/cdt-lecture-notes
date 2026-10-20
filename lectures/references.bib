@@ -5,3 +5,442 @@
   address   = {New York},
   year      = {2006}
 }
+
+% ____________________________________________________________________________
+% Multimodal lecture. Fields checked against publisher/proceedings/arXiv
+% records on 2026-10-20; see planning/multimodal_lecture/literature_review.md.
+% ____________________________________________________________________________
+
+% --- Surveys and taxonomies ---
+
+@article{baltrusaitis2019multimodal,
+  title   = {Multimodal Machine Learning: A Survey and Taxonomy},
+  author  = {Baltru{\v{s}}aitis, Tadas and Ahuja, Chaitanya and Morency, Louis-Philippe},
+  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  volume  = {41},
+  number  = {2},
+  year    = {2019},
+  doi     = {10.1109/TPAMI.2018.2798607}
+}
+
+@article{liang2024foundations,
+  title   = {Foundations \& Trends in Multimodal Machine Learning: Principles, Challenges, and Open Questions},
+  author  = {Liang, Paul Pu and Zadeh, Amir and Morency, Louis-Philippe},
+  journal = {ACM Computing Surveys},
+  year    = {2024},
+  doi     = {10.1145/3656580}
+}
+
+@article{xu2023multimodal,
+  title   = {Multimodal Learning With Transformers: A Survey},
+  author  = {Xu, Peng and Zhu, Xiatian and Clifton, David A.},
+  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  volume  = {45},
+  number  = {10},
+  year    = {2023},
+  doi     = {10.1109/TPAMI.2023.3275156}
+}
+
+@inproceedings{ngiam2011multimodal,
+  title     = {Multimodal Deep Learning},
+  author    = {Ngiam, Jiquan and Khosla, Aditya and Kim, Mingyu and Nam, Juhan and Lee, Honglak and Ng, Andrew Y.},
+  booktitle = {Proceedings of the 28th International Conference on Machine Learning (ICML)},
+  pages     = {689--696},
+  year      = {2011}
+}
+
+% --- Fusion mechanisms ---
+
+@misc{arevalo2017gated,
+  title         = {Gated Multimodal Units for Information Fusion},
+  author        = {Arevalo, John and Solorio, Thamar and Montes-y-G{\'o}mez, Manuel and Gonz{\'a}lez, Fabio A.},
+  year          = {2017},
+  eprint        = {1702.01992},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{zadeh2017tensor,
+  title     = {Tensor Fusion Network for Multimodal Sentiment Analysis},
+  author    = {Zadeh, Amir and Chen, Minghai and Poria, Soujanya and Cambria, Erik and Morency, Louis-Philippe},
+  booktitle = {Proceedings of the 2017 Conference on Empirical Methods in Natural Language Processing (EMNLP)},
+  pages     = {1103--1114},
+  year      = {2017},
+  doi       = {10.18653/v1/D17-1115}
+}
+
+@inproceedings{perez2018film,
+  title     = {{FiLM}: Visual Reasoning with a General Conditioning Layer},
+  author    = {Perez, Ethan and Strub, Florian and de Vries, Harm and Dumoulin, Vincent and Courville, Aaron},
+  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
+  volume    = {32},
+  number    = {1},
+  year      = {2018},
+  doi       = {10.1609/aaai.v32i1.11671}
+}
+
+@inproceedings{tsai2019multimodal,
+  title     = {Multimodal Transformer for Unaligned Multimodal Language Sequences},
+  author    = {Tsai, Yao-Hung Hubert and Bai, Shaojie and Liang, Paul Pu and Kolter, J. Zico and Morency, Louis-Philippe and Salakhutdinov, Ruslan},
+  booktitle = {Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics (ACL)},
+  pages     = {6558--6569},
+  year      = {2019},
+  doi       = {10.18653/v1/P19-1656}
+}
+
+@inproceedings{jaegle2021perceiver,
+  title     = {Perceiver: General Perception with Iterative Attention},
+  author    = {Jaegle, Andrew and Gimeno, Felix and Brock, Andy and Vinyals, Oriol and Zisserman, Andrew and Carreira, Joao},
+  booktitle = {Proceedings of the 38th International Conference on Machine Learning (ICML)},
+  series    = {PMLR},
+  volume    = {139},
+  pages     = {4651--4664},
+  year      = {2021}
+}
+
+@inproceedings{nagrani2021attention,
+  title     = {Attention Bottlenecks for Multimodal Fusion},
+  author    = {Nagrani, Arsha and Yang, Shan and Arnab, Anurag and Jansen, Aren and Schmid, Cordelia and Sun, Chen},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {34},
+  year      = {2021}
+}
+
+% --- Shared embedding spaces ---
+
+@inproceedings{radford2021learning,
+  title     = {Learning Transferable Visual Models From Natural Language Supervision},
+  author    = {Radford, Alec and Kim, Jong Wook and Hallacy, Chris and Ramesh, Aditya and Goh, Gabriel and Agarwal, Sandhini and Sastry, Girish and Askell, Amanda and Mishkin, Pamela and Clark, Jack and Krueger, Gretchen and Sutskever, Ilya},
+  booktitle = {Proceedings of the 38th International Conference on Machine Learning (ICML)},
+  series    = {PMLR},
+  volume    = {139},
+  pages     = {8748--8763},
+  year      = {2021}
+}
+
+@inproceedings{girdhar2023imagebind,
+  title     = {{ImageBind}: One Embedding Space To Bind Them All},
+  author    = {Girdhar, Rohit and El-Nouby, Alaaeldin and Liu, Zhuang and Singh, Mannat and Alwala, Kalyan Vasudev and Joulin, Armand and Misra, Ishan},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {15180--15190},
+  year      = {2023}
+}
+
+@inproceedings{saporta2024symile,
+  title     = {Contrasting with {Symile}: Simple Model-Agnostic Representation Learning for Unlimited Modalities},
+  author    = {Saporta, Adriel and Puli, Aahlad and Goldstein, Mark and Ranganath, Rajesh},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2024},
+  doi       = {10.52202/079017-1814}
+}
+
+% --- LLMs as fusion hub ---
+
+@inproceedings{alayrac2022flamingo,
+  title     = {Flamingo: a Visual Language Model for Few-Shot Learning},
+  author    = {Alayrac, Jean-Baptiste and others},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2022}
+}
+
+@inproceedings{liu2023visual,
+  title     = {Visual Instruction Tuning},
+  author    = {Liu, Haotian and Li, Chunyuan and Wu, Qingyang and Lee, Yong Jae},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {36},
+  year      = {2023}
+}
+
+@article{tu2024towards,
+  title   = {Towards Generalist Biomedical {AI}},
+  author  = {Tu, Tao and others},
+  journal = {NEJM AI},
+  year    = {2024},
+  note    = {arXiv:2307.14334}
+}
+
+@misc{belyaeva2023multimodal,
+  title         = {Multimodal {LLMs} for health grounded in individual-specific data},
+  author        = {Belyaeva, Anastasiya and others},
+  year          = {2023},
+  eprint        = {2307.09018},
+  archivePrefix = {arXiv},
+  note          = {ICML 2023 Workshop on Machine Learning for Multimodal Healthcare Data}
+}
+
+% --- When fusion helps / training dynamics ---
+
+@inproceedings{wang2020what,
+  title     = {What Makes Training Multi-Modal Classification Networks Hard?},
+  author    = {Wang, Weiyao and Tran, Du and Feiszli, Matt},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {12695--12705},
+  year      = {2020}
+}
+
+@inproceedings{huang2022modality,
+  title     = {Modality Competition: What Makes Joint Training of Multi-modal Network Fail in Deep Learning? ({Provably})},
+  author    = {Huang, Yu and Lin, Junyang and Zhou, Chang and Yang, Hongxia and Huang, Longbo},
+  booktitle = {Proceedings of the 39th International Conference on Machine Learning (ICML)},
+  series    = {PMLR},
+  volume    = {162},
+  pages     = {9226--9259},
+  year      = {2022}
+}
+
+@inproceedings{peng2022balanced,
+  title     = {Balanced Multimodal Learning via On-the-fly Gradient Modulation},
+  author    = {Peng, Xiaokang and Wei, Yake and Deng, Andong and Wang, Dong and Hu, Di},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2022}
+}
+
+@inproceedings{liang2023quantifying,
+  title     = {Quantifying \& Modeling Multimodal Interactions: An Information Decomposition Framework},
+  author    = {Liang, Paul Pu and others},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2023}
+}
+
+@inproceedings{liang2021multibench,
+  title     = {{MultiBench}: Multiscale Benchmarks for Multimodal Representation Learning},
+  author    = {Liang, Paul Pu and others},
+  booktitle = {Proceedings of the Neural Information Processing Systems Track on Datasets and Benchmarks},
+  year      = {2021}
+}
+
+% --- Missing modalities ---
+
+@inproceedings{ma2022multimodal,
+  title     = {Are Multimodal Transformers Robust to Missing Modality?},
+  author    = {Ma, Mengmeng and Ren, Jian and Zhao, Long and Testuggine, Davide and Peng, Xi},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {18156--18165},
+  year      = {2022},
+  doi       = {10.1109/CVPR52688.2022.01764}
+}
+
+@article{wu2026deep,
+  title   = {Deep Multimodal Learning with Missing Modality: A Survey},
+  author  = {Wu, Renjie and Wang, Hu and Chen, Hsiang-Ting and Carneiro, Gustavo},
+  journal = {Transactions on Machine Learning Research},
+  year    = {2026},
+  note    = {arXiv:2409.07825}
+}
+
+% --- Healthcare reviews ---
+
+@article{huang2020fusion,
+  title   = {Fusion of medical imaging and electronic health records using deep learning: a systematic review and implementation guidelines},
+  author  = {Huang, Shih-Cheng and Pareek, Anuj and Seyyedi, Saeed and Banerjee, Imon and Lungren, Matthew P.},
+  journal = {npj Digital Medicine},
+  volume  = {3},
+  pages   = {136},
+  year    = {2020},
+  doi     = {10.1038/s41746-020-00341-z}
+}
+
+@article{acosta2022multimodal,
+  title   = {Multimodal biomedical {AI}},
+  author  = {Acosta, Juli{\'a}n N. and Falcone, Guido J. and Rajpurkar, Pranav and Topol, Eric J.},
+  journal = {Nature Medicine},
+  volume  = {28},
+  number  = {9},
+  pages   = {1773--1784},
+  year    = {2022},
+  doi     = {10.1038/s41591-022-01981-2}
+}
+
+@article{kline2022multimodal,
+  title   = {Multimodal machine learning in precision health: A scoping review},
+  author  = {Kline and others},
+  journal = {npj Digital Medicine},
+  volume  = {5},
+  pages   = {171},
+  year    = {2022},
+  doi     = {10.1038/s41746-022-00712-8}
+}
+
+@article{krones2025review,
+  title   = {Review of multimodal machine learning approaches in healthcare},
+  author  = {Krones, Felix and Marikkar, Umar and Parsons, Guy and Szmul, Adam and Mahdi, Adam},
+  journal = {Information Fusion},
+  volume  = {114},
+  pages   = {102690},
+  year    = {2025},
+  doi     = {10.1016/j.inffus.2024.102690}
+}
+
+% --- Healthcare case studies and benchmarks ---
+
+@article{soenksen2022integrated,
+  title   = {Integrated multimodal artificial intelligence framework for healthcare applications},
+  author  = {Soenksen, Luis R. and others},
+  journal = {npj Digital Medicine},
+  year    = {2022},
+  doi     = {10.1038/s41746-022-00689-4}
+}
+
+@inproceedings{hayat2022medfuse,
+  title     = {{MedFuse}: Multi-modal fusion with clinical time-series data and chest {X}-ray images},
+  author    = {Hayat, Nasir and Geras, Krzysztof J. and Shamout, Farah E.},
+  booktitle = {Proceedings of the 7th Machine Learning for Healthcare Conference},
+  series    = {PMLR},
+  volume    = {182},
+  pages     = {479--503},
+  year      = {2022}
+}
+
+@inproceedings{elsharief2025medmod,
+  title     = {{MedMod}: Multimodal Benchmark for Medical Prediction Tasks with Electronic Health Records and Chest {X}-Ray Scans},
+  author    = {Elsharief and others},
+  booktitle = {Proceedings of the Sixth Conference on Health, Inference, and Learning (CHIL)},
+  series    = {PMLR},
+  volume    = {287},
+  pages     = {781--803},
+  year      = {2025}
+}
+
+@misc{yin2026when,
+  title         = {When Does Multimodal Learning Help in Healthcare? A Benchmark on {EHR} and Chest {X}-Ray Fusion},
+  author        = {Yin, Kejing and others},
+  year          = {2026},
+  eprint        = {2602.23614},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{zhang2023improving,
+  title     = {Improving Medical Predictions by Irregular Multimodal Electronic Health Records Modeling},
+  author    = {Zhang, Xinlu and Li, Shiyang and Chen, Zhiyu and Yan, Xifeng and Petzold, Linda},
+  booktitle = {Proceedings of the 40th International Conference on Machine Learning (ICML)},
+  series    = {PMLR},
+  volume    = {202},
+  pages     = {41300--41313},
+  year      = {2023}
+}
+
+% --- ECG + EHR ---
+
+@misc{gow2023mimicivecg,
+  title     = {{MIMIC-IV-ECG}: Diagnostic Electrocardiogram Matched Subset (version 1.0)},
+  author    = {Gow, Brian and Pollard, Tom and others},
+  publisher = {PhysioNet},
+  year      = {2023},
+  doi       = {10.13026/4nqg-sb35}
+}
+
+@article{strodthoff2024prospects,
+  title   = {Prospects for artificial intelligence-enhanced electrocardiogram as a unified screening tool for cardiac and non-cardiac conditions: an explorative study in emergency care},
+  author  = {Strodthoff, Nils and Lopez Alcaraz, Juan Miguel and Haverkamp, Wilhelm},
+  journal = {European Heart Journal -- Digital Health},
+  year    = {2024},
+  doi     = {10.1093/ehjdh/ztae039}
+}
+
+@article{khurshid2022ecg,
+  title   = {{ECG}-Based Deep Learning and Clinical Risk Factors to Predict Atrial Fibrillation},
+  author  = {Khurshid, Shaan and others},
+  journal = {Circulation},
+  volume  = {145},
+  pages   = {122--133},
+  year    = {2022},
+  doi     = {10.1161/CIRCULATIONAHA.121.057480}
+}
+
+@article{mckeen2025ecgfm,
+  title   = {{ECG-FM}: an open electrocardiogram foundation model},
+  author  = {McKeen, Kaden and others},
+  journal = {JAMIA Open},
+  year    = {2025},
+  doi     = {10.1093/jamiaopen/ooaf122}
+}
+
+@article{wornow2023shaky,
+  title   = {The shaky foundations of large language models and foundation models for electronic health records},
+  author  = {Wornow, Michael and others},
+  journal = {npj Digital Medicine},
+  volume  = {6},
+  pages   = {135},
+  year    = {2023},
+  doi     = {10.1038/s41746-023-00879-8}
+}
+
+@misc{wornow2023ehrshot,
+  title         = {{EHRSHOT}: An {EHR} Benchmark for Few-Shot Evaluation of Foundation Models},
+  author        = {Wornow, Michael and others},
+  year          = {2023},
+  eprint        = {2307.02028},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{liu2024zeroshot,
+  title     = {Zero-Shot {ECG} Classification with Multimodal Learning and Test-time Clinical Knowledge Enhancement},
+  author    = {Liu, Che and Wan, Zhongwei and Ouyang, Cheng and Shah, Anand and Bai, Wenjia and Arcucci, Rossella},
+  booktitle = {Proceedings of the 41st International Conference on Machine Learning (ICML)},
+  series    = {PMLR},
+  volume    = {235},
+  pages     = {31949--31963},
+  year      = {2024}
+}
+
+% --- Time series + language, wearables, ECG MLLMs ---
+
+@inproceedings{zhang2024large,
+  title     = {Large Language Models for Time Series: A Survey},
+  author    = {Zhang, Xiyuan and others},
+  booktitle = {Proceedings of the Thirty-Third International Joint Conference on Artificial Intelligence (IJCAI)},
+  year      = {2024}
+}
+
+@inproceedings{liu2025towards,
+  title     = {Towards Cross-Modality Modeling for Time Series Analytics: A Survey in the {LLM} Era},
+  author    = {Liu, Chenxi and others},
+  booktitle = {Proceedings of the Thirty-Fourth International Joint Conference on Artificial Intelligence (IJCAI)},
+  year      = {2025}
+}
+
+@inproceedings{liu2024timemmd,
+  title     = {{Time-MMD}: Multi-Domain Multimodal Dataset for Time Series Analysis},
+  author    = {Liu, Haoxin and others},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS) Datasets and Benchmarks Track},
+  year      = {2024}
+}
+
+@inproceedings{kim2024healthllm,
+  title     = {{Health-LLM}: Large Language Models for Health Prediction via Wearable Sensor Data},
+  author    = {Kim, Yubin and Xu, Xuhai and McDuff, Daniel and Breazeal, Cynthia and Park, Hae Won},
+  booktitle = {Proceedings of the Fifth Conference on Health, Inference, and Learning (CHIL)},
+  series    = {PMLR},
+  volume    = {248},
+  pages     = {522--539},
+  year      = {2024}
+}
+
+@article{belyaeva2025personal,
+  title   = {A personal health large language model for sleep and fitness coaching},
+  author  = {Belyaeva, Anastasiya and others},
+  journal = {Nature Medicine},
+  year    = {2025},
+  doi     = {10.1038/s41591-025-03888-0}
+}
+
+@inproceedings{zhang2025sensorlm,
+  title     = {{SensorLM}: Learning the Language of Wearable Sensors},
+  author    = {Zhang and others},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2025}
+}
+
+@inproceedings{lan2025gem,
+  title     = {{GEM}: Empowering {MLLM} for Grounded {ECG} Understanding with Time Series and Images},
+  author    = {Lan, Xiang and others},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2025}
+}
+
+@misc{liu2024teach,
+  title         = {Teach Multimodal {LLMs} to Comprehend Electrocardiographic Images},
+  author        = {Liu, Ruoqi and Bai, Yuelin and Yue, Xiang and Zhang, Ping},
+  year          = {2024},
+  eprint        = {2410.19008},
+  archivePrefix = {arXiv}
+}
