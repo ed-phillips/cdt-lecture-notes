@@ -19,6 +19,7 @@ edits (see "Collaborating" below).
 - `code/`: a uv project (`lecture_figures` package). Each figure is a module in `code/src/lecture_figures/figures/` with a `make()` function. Shared styling lives in `style.py`.
 - `figures/generated/`: PDF output of `code/`. **Commit these files**, because Overleaf cannot run Python.
 - `figures/`: hand-made images, plus the upstream sample images.
+- `planning/`: lecture planning notes (literature review). Not part of the PDF. The fusion lab and its plan live in the separate `cdt-ecg-ehr-fusion-lab` repo.
 - Everything else in the root (`oxengthesis.cls`, `sample_dphil_thesis.tex`, `chap_*.tex`, ...) is upstream's template and sample content. It is not part of the notes, but is kept so that upstream merges stay clean.
 
 ## Common tasks
@@ -112,5 +113,6 @@ Overleaf settings: Compiler = LuaLaTeX, Main document = `lecture_notes.tex`.
 
 ## Conventions
 
+- Lab and tutorial materials (notebooks, code comments, student-facing text) must not use em dashes or similar AI-style punctuation; the module organiser asked for this explicitly.
 - Size figures with `style.figure()`, which matches the text width (16 cm), and include them at `width=\linewidth`. Use `style.COLOURS` in their fixed order.
 - Label lectures `chap:lecture_NN`, and label figures `fig:<module_name>` to match the generating script.
