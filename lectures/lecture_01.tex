@@ -143,17 +143,24 @@ Krones et al.~\cite{krones2025review} also review mixed strategies, and the
 features each kind of fusion operates on. Huang et al.~\cite{huang2020fusion}
 give implementation guidelines.
 
-\paragraph{How to combine.} Common choices for the operator $c$ are shown in
-Figure~\ref{fig:fusion_operators}. With $\mathbf{h}_{E}, \mathbf{h}_{C} \in
-\mathbb{R}^{d}$:
+\paragraph{How to combine.} Krones et al.~\cite{krones2025review} group
+feature-level fusion into three kinds: concatenation, operation-based and
+learning-based. Figure~\ref{fig:fusion_operators} shows examples of each. Below,
+$\mathbf{h}_{E}, \mathbf{h}_{C} \in \mathbb{R}^{d}$ are the two representations
+and $\mathbf{z}$ is the fused one.
+
+\smallskip\noindent\emph{Concatenation} merges the vectors end to end, so the
+sizes add:
+\begin{equation}
+  \mathbf{z} = [\mathbf{h}_{E}; \mathbf{h}_{C}] \in \mathbb{R}^{2d}.
+\end{equation}
+
+\smallskip\noindent\emph{Operation-based} fusion combines the vectors with
+element-wise operations or attention, which usually requires them to have the
+same size~\cite{krones2025review}.
 \begin{itemize}
-  \item \textbf{Concatenation} keeps both representations side by side, doubling
-        the size:
-        \begin{equation}
-          \mathbf{z} = [\mathbf{h}_{E}; \mathbf{h}_{C}] \in \mathbb{R}^{2d}.
-        \end{equation}
-  \item \textbf{Addition} keeps the size fixed, usually after projecting each
-        modality with a learnt matrix:
+  \item \textbf{Addition}, usually after projecting each modality with a learnt
+        matrix:
         \begin{equation}
           \mathbf{z} = W_{E}\mathbf{h}_{E} + W_{C}\mathbf{h}_{C}.
         \end{equation}
@@ -174,14 +181,6 @@ Figure~\ref{fig:fusion_operators}. With $\mathbf{h}_{E}, \mathbf{h}_{C} \in
           \mathbf{z} = \symbf{\gamma}(\mathbf{x}_{E}) \odot \mathbf{h}_{C} + \symbf{\beta}(\mathbf{x}_{E}),
         \end{equation}
         with $\symbf{\gamma}$ and $\symbf{\beta}$ learnt functions.
-  \item \textbf{Tensor fusion}~\cite{zadeh2017tensor} takes the outer product of the
-        representations, each extended with a 1, so that $\mathbf{z}$ contains the
-        unimodal features and every pairwise product between them:
-        \begin{equation}
-          \mathbf{z} = \begin{bmatrix}\mathbf{h}_{E} \\ 1\end{bmatrix} \otimes
-                       \begin{bmatrix}\mathbf{h}_{C} \\ 1\end{bmatrix}
-                     \in \mathbb{R}^{(d+1)^2}.
-        \end{equation}
   \item \textbf{Attention over modalities} weights each modality by a score computed
         from the inputs. With a learnt query $\mathbf{q}$ and keys
         $\mathbf{k}_m = W_K \mathbf{h}_m$,
@@ -191,17 +190,23 @@ Figure~\ref{fig:fusion_operators}. With $\mathbf{h}_{E}, \mathbf{h}_{C} \in
           \qquad
           \mathbf{z} = \sum_m \alpha_m \mathbf{h}_m.
         \end{equation}
-  \item \textbf{A learnt shared space} trains the encoders so that matching inputs
-        from the two modalities have similar representations (see CLIP,
-        Section~\ref{sec:clip}). The representations can then be compared or
-        combined directly.
 \end{itemize}
+Multiplicative interactions can also be modelled explicitly, for example with
+the outer product of the two representations in tensor
+fusion~\cite{zadeh2017tensor}, at the cost of a much larger representation.
+
+\smallskip\noindent\emph{Learning-based} fusion uses a model to map the features
+into a shared, informative space~\cite{krones2025review}. One example is to train
+the encoders so that matching inputs from the two modalities have similar
+representations, as CLIP does (Section~\ref{sec:clip}).
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{generated/fusion_operators}
   \caption{Ways to combine an EHR representation (orange) and an ECG
-           representation (blue) into a fused representation (green).}
+           representation (blue) into a fused representation (green):
+           concatenation; three operation-based methods (addition, gating
+           and attention); and a learning-based shared space.}
   \label{fig:fusion_operators}
 \end{figure}
 
@@ -212,34 +217,43 @@ per token),
   \operatorname{Attn}(Q, K, V) = \operatorname{softmax}\left(\frac{Q K^\top}{\sqrt{d_k}}\right) V.
 \end{equation}
 Xu, Zhu \& Clifton~\cite{xu2023multimodal} survey how this is used to fuse
-modalities. With token sequences $X_A$ and $X_B$ from two modalities:
+modalities. With token sequences $X_A$ and $X_B$ from two modalities, they describe six
+patterns:
 \begin{itemize}
-  \item \textbf{Early summation or concatenation} feeds $X_A + X_B$ (for aligned
-        tokens) or $[X_A; X_B]$ to one transformer, so self-attention runs across
-        both modalities.
-  \item \textbf{Hierarchical} designs encode each modality with its own
-        transformer layers, then fuse the outputs with further layers.
-  \item \textbf{Cross-attention} takes the queries from one modality and the keys
-        and values from the other:
+  \item \textbf{Early summation}: add the token embeddings of the two modalities
+        (when they are aligned) and feed $X_A + X_B$ to one transformer.
+  \item \textbf{Early concatenation}: feed the joined sequence $[X_A; X_B]$ to one
+        transformer, so that self-attention runs across both modalities.
+  \item \textbf{Hierarchical attention, multi-stream to one-stream}: encode each
+        modality with its own transformer layers, then concatenate the outputs
+        and fuse them with shared layers.
+  \item \textbf{Hierarchical attention, one-stream to multi-stream}: process the
+        concatenated sequence with shared layers first, then split it into
+        separate streams for each modality.
+  \item \textbf{Cross-attention}: take the queries from one modality and the keys
+        and values from the other,
         \begin{equation}
           Z_A = \operatorname{Attn}\left(X_A W_Q,\; X_B W_K,\; X_B W_V\right),
         \end{equation}
-        so each token of $A$ gathers information from $B$. The Multimodal
-        Transformer~\cite{tsai2019multimodal} uses directional cross-attention of
-        this kind to fuse time series sampled at different rates, without
-        aligning them first.
-  \item \textbf{Attention bottlenecks}~\cite{nagrani2021attention} force all
-        exchange between modalities through a few shared tokens
-        $Z_{\text{fsn}}$. At each layer $l$, each modality $i$ attends over its own
-        tokens and the bottleneck, and the bottleneck updates are averaged:
-        \begin{equation}
-          \begin{gathered}
-            \left[Z_i^{l+1} \,\|\, \hat{Z}_{\text{fsn},i}^{l+1}\right]
-              = \operatorname{Transformer}\left(\left[Z_i^{l} \,\|\, Z_{\text{fsn}}^{l}\right]; \theta_i\right), \\
-            Z_{\text{fsn}}^{l+1} = \operatorname{Avg}_i\, \hat{Z}_{\text{fsn},i}^{l+1}.
-          \end{gathered}
-        \end{equation}
+        and the same with the roles swapped, so each token of $A$ gathers
+        information from $B$ and vice versa.
+  \item \textbf{Cross-attention to concatenation}: apply cross-attention in both
+        directions, then concatenate the two streams and process them with a
+        further transformer, $Z = \operatorname{Transformer}\left([Z_A; Z_B]\right)$.
 \end{itemize}
+Two examples from the literature: the Multimodal Transformer~\cite{tsai2019multimodal}
+uses directional cross-attention to fuse time series sampled at different rates,
+without aligning them first. Attention bottlenecks~\cite{nagrani2021attention}
+force all exchange between modalities through a few shared tokens
+$Z_{\text{fsn}}$. At each layer $l$, each modality $i$ attends over its own tokens
+and the bottleneck, and the bottleneck updates are averaged:
+\begin{equation}
+  \begin{gathered}
+    \left[Z_i^{l+1} \,\|\, \hat{Z}_{\text{fsn},i}^{l+1}\right]
+      = \operatorname{Transformer}\left(\left[Z_i^{l} \,\|\, Z_{\text{fsn}}^{l}\right]; \theta_i\right), \\
+    Z_{\text{fsn}}^{l+1} = \operatorname{Avg}_i\, \hat{Z}_{\text{fsn},i}^{l+1}.
+  \end{gathered}
+\end{equation}
 
 \paragraph{Cautions from the literature.}
 \begin{itemize}
