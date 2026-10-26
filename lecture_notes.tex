@@ -29,6 +29,16 @@
 % exists, so create e.g. frontmatter/abstract.tex to add an abstract page.
 %
 
+% A handout, not a bound thesis: no list of figures or tables, and no blank
+% pages to make the contents or chapters start on a right-hand page. The class
+% always calls \listoffigures and \listoftables, so they are switched off here.
+\renewcommand{\listoffigures}{}
+\renewcommand{\listoftables}{}
+\openany
+\let\cleardoublepage\clearpage
+\let\cleartorecto\clearpage
+
+
 % A short list of pointers at the end of each section
 \newenvironment{furtherreading}
   {\par\medskip\noindent\textbf{Further reading}\begin{itemize}\setlength{\itemsep}{1pt}}
