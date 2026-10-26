@@ -115,21 +115,87 @@ joint) or late, depending on where the modalities are combined
   \label{fig:fusion_paradigms}
 \end{figure}
 
+Write $\mathbf{x}_{E}$ and $\mathbf{x}_{C}$ for the inputs from two modalities
+(here the EHR and the ECG), and $\hat{y}$ for the prediction.
 \begin{itemize}
-  \item \textbf{Early:} join the input features and train one model.
-  \item \textbf{Intermediate:} learn a representation of each modality, combine the
-        representations, and train end to end.
-  \item \textbf{Late:} train one model per modality and combine their predictions.
+  \item \textbf{Early fusion} joins the input features, or features extracted from
+        each modality, and trains one model $f$:
+        \begin{equation}
+          \hat{y} = f\left([\mathbf{x}_{E}; \mathbf{x}_{C}]\right),
+        \end{equation}
+        where $[\cdot\,;\cdot]$ denotes concatenation.
+  \item \textbf{Intermediate fusion} learns an encoder $\phi_m$ for each modality,
+        combines the representations $\mathbf{h}_m = \phi_m(\mathbf{x}_m)$ with an
+        operator $c$, and trains a head $g$, all end to end:
+        \begin{equation}
+          \hat{y} = g\left(c(\mathbf{h}_{E}, \mathbf{h}_{C})\right).
+        \end{equation}
+  \item \textbf{Late fusion} trains a model $f_m$ on each modality separately and
+        combines their predictions with a function $\psi$:
+        \begin{equation}
+          \hat{y} = \psi\left(f_{E}(\mathbf{x}_{E}), f_{C}(\mathbf{x}_{C})\right),
+        \end{equation}
+        for example a weighted average of predicted probabilities,
+        $\hat{p} = w\,\hat{p}_{E} + (1 - w)\,\hat{p}_{C}$, an average of log-odds,
+        or a small model trained on the outputs (stacking).
 \end{itemize}
 Krones et al.~\cite{krones2025review} also review mixed strategies, and the
 features each kind of fusion operates on. Huang et al.~\cite{huang2020fusion}
 give implementation guidelines.
 
-\paragraph{How to combine.} Common operations for combining two representations
-are shown in Figure~\ref{fig:fusion_operators}: concatenation, addition, gating
-(e.g.\ gated multimodal units~\cite{arevalo2017gated}), attention, and learning
-a shared space. Others include feature-wise modulation (FiLM~\cite{perez2018film})
-and outer products (tensor fusion~\cite{zadeh2017tensor}).
+\paragraph{How to combine.} Common choices for the operator $c$ are shown in
+Figure~\ref{fig:fusion_operators}. With $\mathbf{h}_{E}, \mathbf{h}_{C} \in
+\mathbb{R}^{d}$:
+\begin{itemize}
+  \item \textbf{Concatenation} keeps both representations side by side, doubling
+        the size:
+        \begin{equation}
+          \mathbf{z} = [\mathbf{h}_{E}; \mathbf{h}_{C}] \in \mathbb{R}^{2d}.
+        \end{equation}
+  \item \textbf{Addition} keeps the size fixed, usually after projecting each
+        modality with a learnt matrix:
+        \begin{equation}
+          \mathbf{z} = W_{E}\mathbf{h}_{E} + W_{C}\mathbf{h}_{C}.
+        \end{equation}
+  \item \textbf{Gating} learns how much to take from each modality, per feature and
+        per example. In the gated multimodal unit of Arevalo et
+        al.~\cite{arevalo2017gated},
+        \begin{equation}
+          \begin{gathered}
+            \tilde{\mathbf{h}}_m = \tanh(W_m \mathbf{x}_m), \qquad
+            \mathbf{g} = \sigma\left(W_g [\mathbf{x}_{E}; \mathbf{x}_{C}]\right), \\
+            \mathbf{z} = \mathbf{g} \odot \tilde{\mathbf{h}}_{E} + (1 - \mathbf{g}) \odot \tilde{\mathbf{h}}_{C},
+          \end{gathered}
+        \end{equation}
+        where $\sigma$ is the logistic sigmoid and $\odot$ the element-wise product.
+  \item \textbf{Feature-wise modulation} (FiLM~\cite{perez2018film}) lets one
+        modality scale and shift the features of another:
+        \begin{equation}
+          \mathbf{z} = \symbf{\gamma}(\mathbf{x}_{E}) \odot \mathbf{h}_{C} + \symbf{\beta}(\mathbf{x}_{E}),
+        \end{equation}
+        with $\symbf{\gamma}$ and $\symbf{\beta}$ learnt functions.
+  \item \textbf{Tensor fusion}~\cite{zadeh2017tensor} takes the outer product of the
+        representations, each extended with a 1, so that $\mathbf{z}$ contains the
+        unimodal features and every pairwise product between them:
+        \begin{equation}
+          \mathbf{z} = \begin{bmatrix}\mathbf{h}_{E} \\ 1\end{bmatrix} \otimes
+                       \begin{bmatrix}\mathbf{h}_{C} \\ 1\end{bmatrix}
+                     \in \mathbb{R}^{(d+1)^2}.
+        \end{equation}
+  \item \textbf{Attention over modalities} weights each modality by a score computed
+        from the inputs. With a learnt query $\mathbf{q}$ and keys
+        $\mathbf{k}_m = W_K \mathbf{h}_m$,
+        \begin{equation}
+          \alpha_m = \frac{\exp\left(\mathbf{q}^\top \mathbf{k}_m / \sqrt{d}\right)}
+                          {\sum_{m'} \exp\left(\mathbf{q}^\top \mathbf{k}_{m'} / \sqrt{d}\right)},
+          \qquad
+          \mathbf{z} = \sum_m \alpha_m \mathbf{h}_m.
+        \end{equation}
+  \item \textbf{A learnt shared space} trains the encoders so that matching inputs
+        from the two modalities have similar representations (see CLIP,
+        Section~\ref{sec:clip}). The representations can then be compared or
+        combined directly.
+\end{itemize}
 
 \begin{figure}[htbp]
   \centering
@@ -139,11 +205,41 @@ and outer products (tensor fusion~\cite{zadeh2017tensor}).
   \label{fig:fusion_operators}
 \end{figure}
 
-\paragraph{Fusion in transformers.} Xu, Zhu \& Clifton~\cite{xu2023multimodal}
-survey how transformers fuse modalities: early summation or concatenation of the
-token sequences, hierarchical attention, and cross-attention between modalities.
-Examples include cross-modal attention over unaligned time series~\cite{tsai2019multimodal}
-and attention bottlenecks~\cite{nagrani2021attention}.
+\paragraph{Fusion in transformers.} Transformers are built on scaled dot-product
+attention. For queries $Q$, keys $K$ and values $V$ (each a matrix with one row
+per token),
+\begin{equation}
+  \operatorname{Attn}(Q, K, V) = \operatorname{softmax}\left(\frac{Q K^\top}{\sqrt{d_k}}\right) V.
+\end{equation}
+Xu, Zhu \& Clifton~\cite{xu2023multimodal} survey how this is used to fuse
+modalities. With token sequences $X_A$ and $X_B$ from two modalities:
+\begin{itemize}
+  \item \textbf{Early summation or concatenation} feeds $X_A + X_B$ (for aligned
+        tokens) or $[X_A; X_B]$ to one transformer, so self-attention runs across
+        both modalities.
+  \item \textbf{Hierarchical} designs encode each modality with its own
+        transformer layers, then fuse the outputs with further layers.
+  \item \textbf{Cross-attention} takes the queries from one modality and the keys
+        and values from the other:
+        \begin{equation}
+          Z_A = \operatorname{Attn}\left(X_A W_Q,\; X_B W_K,\; X_B W_V\right),
+        \end{equation}
+        so each token of $A$ gathers information from $B$. The Multimodal
+        Transformer~\cite{tsai2019multimodal} uses directional cross-attention of
+        this kind to fuse time series sampled at different rates, without
+        aligning them first.
+  \item \textbf{Attention bottlenecks}~\cite{nagrani2021attention} force all
+        exchange between modalities through a few shared tokens
+        $Z_{\text{fsn}}$. At each layer $l$, each modality $i$ attends over its own
+        tokens and the bottleneck, and the bottleneck updates are averaged:
+        \begin{equation}
+          \begin{gathered}
+            \left[Z_i^{l+1} \,\|\, \hat{Z}_{\text{fsn},i}^{l+1}\right]
+              = \operatorname{Transformer}\left(\left[Z_i^{l} \,\|\, Z_{\text{fsn}}^{l}\right]; \theta_i\right), \\
+            Z_{\text{fsn}}^{l+1} = \operatorname{Avg}_i\, \hat{Z}_{\text{fsn},i}^{l+1}.
+          \end{gathered}
+        \end{equation}
+\end{itemize}
 
 \paragraph{Cautions from the literature.}
 \begin{itemize}
@@ -173,20 +269,45 @@ Longitudinal EHRs combine many data types that evolve over time, including
 diagnosis codes, laboratory results, medications, notes, imaging and
 signals~\cite{fries2025foundation}.
 
-\begin{itemize}
-  \item \textbf{Next event instead of next token.} ETHOS~\cite{renc2024zero} treats
-        medical events as tokens and trains a transformer on patient timelines to
-        predict future health trajectories zero-shot, without task-specific
-        labels or fine-tuning.
-  \item \textbf{Time to event.} MOTOR~\cite{steinberg2024motor} predicts the
-        distribution of times to many future events rather than only the next
-        one. It was pretrained on up to 55 million patient records.
-  \item \textbf{Multimodal patient journeys.} Kim et al.~\cite{kim2026computable}
-        combine structured EHR data with information extracted from clinical
-        notes by language models. NOAH~\cite{susetzky2026noah} models full patient
-        journeys across the MIMIC datasets, including images, time series and
-        structured and unstructured records.
-\end{itemize}
+\paragraph{Next event instead of next token.} ETHOS~\cite{renc2024zero} turns each
+patient's record into a sequence of tokens $e_1, e_2, \dots, e_T$: medical events,
+with tokens for the time intervals between them. A transformer is trained to
+predict the next token, as a language model is:
+\begin{equation}
+  p_\theta(e_1, \dots, e_T) = \prod_{t=1}^{T} p_\theta(e_t \mid e_{<t}).
+\end{equation}
+Outcomes are then predicted zero-shot by simulation: starting from a patient's
+history, generate $R$ possible future timelines and count the $M$ that contain
+the outcome (for example death before discharge), giving $\hat{p} = M / R$.
+The paper uses $R = 20$.
+
+\paragraph{Time to event.} MOTOR~\cite{steinberg2024motor} predicts how long until
+each of many future events (medical codes), rather than only the next event.
+It uses a piecewise exponential model: time is split into pieces
+$[S_p, E_p)$, and for event type $k$ the hazard is constant within each piece,
+$\lambda_{kp}$. The probability of not having had event $k$ by time $t$ is
+\begin{equation}
+  S_k(t) = \prod_{p} \exp\left(-\lambda_{kp} \, \max\left(0,\, \min(t, E_p) - S_p\right)\right).
+\end{equation}
+Training maximises the likelihood $\lambda^{\delta} \exp(-\lambda U)$ in each
+piece, where $U$ is the time spent in the piece and $\delta$ indicates whether
+the event happened there. To scale to thousands of event types, the log hazard
+is factorised as $\log \lambda_{kp} = \mathbf{m}_p^\top \symbf{\beta}_k$,
+with $\mathbf{m}_p$ derived from the transformer's representation of the patient
+and $\symbf{\beta}_k$ an embedding of the event type. MOTOR was pretrained
+on up to 55 million patient records.
+
+\paragraph{Multimodal patient journeys.} Kim et al.~\cite{kim2026computable}
+combine structured EHR data with information extracted from clinical notes by
+language models. NOAH~\cite{susetzky2026noah} models full patient journeys across
+the MIMIC datasets, including images, time series and structured and
+unstructured records. It encodes each modality with its own encoder and models
+the next event $x_t$ through a latent patient state $\mathbf{z}_t$:
+\begin{equation}
+  p_\theta(x_t \mid x_{<t}) = \int p_\theta(x_t \mid \mathbf{z}_t)\, p_\theta(\mathbf{z}_t \mid \mathbf{h}_{<t})\, d\mathbf{z}_t,
+\end{equation}
+where $\mathbf{h}_{<t}$ summarises the history, and is trained variationally,
+with prior and posterior networks for $\mathbf{z}_t$.
 
 \begin{furtherreading}
   \item Fries~\cite{fries2025foundation}: lecture slides on foundation models for EHRs.
@@ -231,11 +352,29 @@ so that this section works as pre-reading.}
 \section{LLMs as multimodal backbones}
 \label{sec:llms}
 
-\paragraph{Projecting into the language model.} LLaVA~\cite{liu2023visual} connects
-an existing image encoder to an LLM through a learnt projection, aligning the
-image representations with the language model's embedding space, and then tunes
-on visual instructions. Flamingo~\cite{alayrac2022flamingo} instead adds
-cross-attention layers to a frozen LLM.
+\paragraph{Projecting into the language model.} LLaVA~\cite{liu2023visual}
+connects an existing image encoder $g$ to an LLM through a learnt projection $W$,
+which maps the image features into the language model's token-embedding space:
+\begin{equation}
+  H_v = W Z_v, \qquad Z_v = g(X_v).
+\end{equation}
+The projected tokens $H_v$ are placed in the LLM's input alongside the text, and
+the model is trained to generate the answer $X_a$ to an instruction
+$X_{\text{instruct}}$ one token at a time:
+\begin{equation}
+  p(X_a \mid X_v, X_{\text{instruct}}) = \prod_{i=1}^{L} p_\theta\left(x_i \mid X_v, X_{\text{instruct},<i}, X_{a,<i}\right).
+\end{equation}
+
+Flamingo~\cite{alayrac2022flamingo} instead keeps the LLM frozen and inserts new
+cross-attention layers between its layers, with queries from the text and keys and
+values from the visual features. Each new layer's output is scaled by a learnt
+gate before it joins the residual stream,
+\begin{equation}
+  \mathbf{y} \leftarrow \mathbf{y} + \tanh(\alpha)\, \operatorname{XAttn}(\mathbf{y}, X_v),
+\end{equation}
+with $\alpha$ initialised at 0, so that training starts from the unchanged
+language model. A ``Perceiver Resampler'' first reduces any number of visual
+features to a fixed set of 64 tokens.
 
 \paragraph{Aligning representations: CLIP.}
 \label{sec:clip}
@@ -248,17 +387,25 @@ captions is
   L_{\text{image}\to\text{text}} = -\frac{1}{N} \sum_{i=1}^{N}
     \log \frac{\exp(s_{ii})}{\sum_{j=1}^{N} \exp(s_{ij})},
 \end{equation}
-and CLIP averages it with the same loss in the other direction. This is the
-InfoNCE loss~\cite{vandenoord2018representation}. The aligned space enables
-zero-shot classification from text prompts. MERL~\cite{liu2024zeroshot} applies
+and CLIP averages it with the same loss over the columns:
+\begin{equation}
+  L = \tfrac{1}{2}\left(L_{\text{image}\to\text{text}} + L_{\text{text}\to\text{image}}\right).
+\end{equation}
+This is the InfoNCE loss~\cite{vandenoord2018representation}, applied in both
+directions. The aligned space enables zero-shot classification: embed a text
+prompt $\mathbf{t}_c$ for each class $c$ (such as ``a photo of a dog''), and assign
+an image to the class whose prompt is most similar,
+$\hat{c} = \arg\max_c \, \mathbf{e} \cdot \mathbf{t}_c$. MERL~\cite{liu2024zeroshot} applies
 the same idea to ECGs and their reports, and ImageBind~\cite{girdhar2023imagebind}
 extends it to six modalities.
 
 \paragraph{Medical examples.}
 \begin{itemize}
   \item HeLM~\cite{belyaeva2023multimodal} serialises tabular data as text and
-        encodes complex modalities, such as spirograms, into the LLM's embedding
-        space.
+        maps complex modalities, such as spirograms, into the LLM's
+        token-embedding space with a learnt encoder, in the same way as $H_v$
+        above. The LLM then reads a mixture of word embeddings and these
+        encoded tokens.
   \item Med-PaLM M~\cite{tu2024towards} handles clinical language, imaging and
         genomics with one set of model weights.
 \end{itemize}
@@ -277,7 +424,10 @@ extends it to six modalities.
 
 Representation learning, alignment and fusion require data and effort, while
 LLMs are flexible in their input. Ji et al.~\cite{ji2026portable} use a frozen LLM
-to summarise irregular ICU time series as text, then embed the summaries. These
+to summarise each patient's irregular ICU time series $\mathbf{x}$ as text, then
+embed the summary with a frozen text-embedding model $E$, giving a
+representation $\mathbf{z} = E\left(\operatorname{LLM}(\operatorname{prompt}(\mathbf{x}))\right)$
+for downstream predictors. These
 representations were competitive with imputation, self-supervised learning and
 time series foundation models, and transferred better to new hospitals.
 
