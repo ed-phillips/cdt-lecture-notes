@@ -1,23 +1,469 @@
-\chapter{Introduction}
+\chapter{Multimodal AI for time series}
 \label{chap:lecture_01}
 
+These notes accompany the first half of the lecture, and follow the order of
+the slides. They are not a complete treatment of multimodal learning. Each
+section gives a short account of the main ideas, then points to the papers
+the slides draw on and to good places to read further. The practical the next
+day (ECG + EHR fusion) puts several of these ideas into code, and
+Section~\ref{sec:lab} explains how.
 
-\section{Overview}
 
-Placeholder text for the first lecture. Replace with your own content.
-Citations work as usual~\cite{bishop2006pattern}.
+\section{What makes a problem multimodal?}
+\label{sec:intro}
+
+A \emph{modality} is the way in which something happens or is experienced,
+and a research problem is multimodal when it involves several such
+modalities~\cite{baltrusaitis2019multimodal}. In machine learning the word is
+used loosely for any distinct type of data: text, images, audio, waveforms,
+tables, and so on. \emph{Multimodal machine learning} aims to build models that
+can process and relate information from several of these at
+once~\cite{baltrusaitis2019multimodal}.
+
+What makes two data streams different modalities, rather than two channels of
+one modality, is that they differ in structure, sampling and noise. The twelve
+leads of an ECG are one modality: they are sampled together, at the same rate,
+and measure the same physical process. An ECG and a patient's electronic
+health record (EHR) are different modalities. The ECG is a dense 500\,Hz
+waveform lasting ten seconds; the EHR is a sparse, irregular record of codes,
+measurements and notes accumulated over years. Liang and
+colleagues~\cite{liang2024foundations} describe multimodal data through three
+principles: \emph{heterogeneity} (modalities look and behave differently),
+\emph{connections} (they still carry related information about the same
+thing), and \emph{interactions} (combining them can produce information that
+neither has alone).
+
+\paragraph{Why healthcare?}
+Healthcare is multimodal by nature. A clinician rarely decides anything from
+one source: a diagnosis brings together the history, an examination, blood
+tests, imaging and physiological signals. The opportunities span discovery,
+diagnosis, prognosis, treatment and prevention, and include remote monitoring
+with wearable sensors, digital clinical trials and ``digital twins'' of
+patients~\cite{acosta2022multimodal}. So do the challenges: data are scattered
+across systems, incomplete, collected at different times, and subject to
+privacy constraints.
+
+\begin{furtherreading}
+  \item Baltru\v{s}aitis, Ahuja \& Morency, \emph{Multimodal machine learning: a
+        survey and taxonomy}~\cite{baltrusaitis2019multimodal}. The standard
+        starting point, and the taxonomy used in
+        Section~\ref{sec:challenges}.
+  \item Acosta et al., \emph{Multimodal biomedical AI}~\cite{acosta2022multimodal}.
+        A readable overview of the opportunities and obstacles in medicine.
+  \item Liang, Zadeh \& Morency, \emph{Foundations and trends in multimodal machine
+        learning}~\cite{liang2024foundations}. A more recent and more formal
+        survey.
+\end{furtherreading}
 
 
-\section{A figure generated from code}
+\section{A brief and subjective history}
+\label{sec:history}
 
-Figure~\ref{fig:example_signal} is produced by
-\texttt{code/figures/example\_signal.py}. Run \texttt{uv run make-figures}
-from the \texttt{code/} directory to regenerate it, then commit the PDF in
-\texttt{figures/generated/} so Overleaf picks it up.
+The idea that information from one sense changes how we perceive another is
+old. A famous demonstration is the McGurk effect~\cite{mcgurk1976hearing}: when
+the sound ``ba'' is dubbed over a video of someone saying ``ga'', many people
+hear ``da''. Seeing the lips changes what we hear. It is fitting that one of the
+earliest strands of multimodal machine learning was audio-visual speech
+recognition, using lip movements to make speech recognition more robust.
+
+A rough timeline:
+\begin{itemize}
+  \item \textbf{1990s and 2000s:} multimedia indexing and retrieval, finding
+        images and videos by their content rather than by keywords alone.
+  \item \textbf{2000s:} understanding human social interaction from recordings.
+        The AMI Meeting Corpus~\cite{mccowan2005ami}, around 100 hours of meetings
+        recorded with microphones, cameras and pens, is an example of the data
+        this needed.
+  \item \textbf{2010s:} deep learning arrives. Ngiam et al.~\cite{ngiam2011multimodal}
+        showed that learning features from audio and video together could
+        improve the features for each. Most of the decade's progress was on
+        text and images: captioning, visual question answering, and later
+        image--text pretraining (Section~\ref{sec:llms}).
+  \item \textbf{Now:} almost anything is called a modality, and foundation models
+        increasingly take several at once. Healthcare is one of the most
+        active areas.
+\end{itemize}
+
+\begin{furtherreading}
+  \item Baltru\v{s}aitis et al.~\cite{baltrusaitis2019multimodal}, Section~2, for a
+        fuller history.
+\end{furtherreading}
+
+
+\section{Five challenges}
+\label{sec:challenges}
+
+Baltru\v{s}aitis et al.~\cite{baltrusaitis2019multimodal} organise multimodal
+learning around five core challenges (Table~\ref{tab:challenges}). They overlap,
+and other taxonomies exist~\cite{liang2024foundations}, but they are a useful
+map. This lecture concentrates on \emph{representation} and \emph{fusion}, with
+\emph{alignment} appearing in Section~\ref{sec:llms}.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{@{}lp{0.68\linewidth}@{}}
+    \toprule
+    Challenge      & The question it asks \\
+    \midrule
+    Representation & How should we represent and summarise data from each
+                     modality, and from several together? \\
+    Translation    & How can we map data from one modality to another, for
+                     example an ECG to a written report? \\
+    Alignment      & How do elements of one modality relate to elements of
+                     another, for example which part of a report describes
+                     which beat? \\
+    Fusion         & How can we join information from several modalities to
+                     make a prediction? \\
+    Co-learning    & How can knowledge be transferred between modalities,
+                     their representations and their models? \\
+    \bottomrule
+  \end{tabular}
+  \caption{The five challenges of multimodal machine
+           learning, after Baltru\v{s}aitis et al.~\cite{baltrusaitis2019multimodal}.}
+  \label{tab:challenges}
+\end{table}
+
+\begin{furtherreading}
+  \item Liang et al.~\cite{liang2024foundations} update the taxonomy to six
+        challenges (representation, alignment, reasoning, generation,
+        transference and quantification).
+\end{furtherreading}
+
+
+\section{Fusion}
+\label{sec:fusion}
+
+\subsection{Why fuse?}
+
+There are two main reasons to combine modalities.
+\begin{itemize}
+  \item \textbf{Complementary information.} Each modality may carry information
+        the others lack, so together they predict better than any one alone.
+  \item \textbf{Robustness.} If one modality is missing or of poor quality, the
+        others can make up for it.
+\end{itemize}
+Neither is guaranteed. Reviews of clinical work find that multimodal models
+usually, but not always, beat unimodal ones, and that the gain depends on the
+data and the task~\cite{kline2022multimodal,krones2025review}. Whether fusion
+can help depends on how the information is shared:
+some is \emph{redundant} (present in both modalities), some \emph{unique} to one,
+and some \emph{synergistic} (only visible when the two are combined).
+Liang et al.~\cite{liang2023quantifying} show how to estimate these quantities.
+
+\subsection{Where to fuse: early, intermediate and late}
+
+The most common way to describe fusion methods is by \emph{where} in the
+pipeline the modalities meet (Figure~\ref{fig:fusion_paradigms}). Huang et
+al.~\cite{huang2020fusion} use this taxonomy for imaging and EHR data, and
+Krones et al.~\cite{krones2025review} for healthcare more broadly.
 
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=\linewidth]{generated/example_signal}
-    \caption{A noisy sinusoid and its moving-average estimate.}
-    \label{fig:example_signal}
+  \centering
+  \includegraphics[width=\linewidth]{generated/fusion_paradigms}
+  \caption{Where the modalities meet. \emph{Early} fusion joins the input
+           features and trains one model. \emph{Intermediate} fusion encodes
+           each modality, combines the embeddings, and trains everything
+           together. \emph{Late} fusion trains one model per modality and
+           combines their predictions.}
+  \label{fig:fusion_paradigms}
 \end{figure}
+
+\begin{itemize}
+  \item \textbf{Early fusion} concatenates the input features (or features
+        extracted from each modality) and fits a single model. It is simple and
+        lets the model use interactions between modalities, but the inputs must
+        be available together, and a high-dimensional modality can swamp a
+        low-dimensional one.
+  \item \textbf{Late fusion} trains a separate model on each modality and
+        combines their outputs, by averaging, voting, or a small model trained
+        on the outputs. It copes easily with a missing modality and can reuse
+        existing models, but it cannot learn interactions between the
+        modalities.
+  \item \textbf{Intermediate} (or joint) fusion learns a representation of each
+        modality and combines the representations inside one network, trained
+        end to end. It is the most flexible, and needs the most data.
+\end{itemize}
+Real systems often mix these, for example fusing some modalities early and
+adding others late~\cite{krones2025review}. Huang et al.~\cite{huang2020fusion}
+also give practical guidelines for choosing between them.
+
+\subsection{How to combine}
+
+Within intermediate fusion, there are several ways to combine two embeddings
+$\mathbf{h}_{\text{EHR}}$ and $\mathbf{h}_{\text{ECG}}$
+(Figure~\ref{fig:fusion_operators}).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{generated/fusion_operators}
+  \caption{Five ways to combine an EHR embedding (orange) with an ECG embedding
+           (blue) into a fused representation (green).}
+  \label{fig:fusion_operators}
+\end{figure}
+
+\begin{itemize}
+  \item \textbf{Concatenation} $[\mathbf{h}_{\text{EHR}}, \mathbf{h}_{\text{ECG}}]$
+        keeps everything and leaves the next layer to work out how to combine
+        it.
+  \item \textbf{Addition} $\mathbf{h}_{\text{EHR}} + \mathbf{h}_{\text{ECG}}$ keeps
+        the size fixed, but assumes the two embeddings live in comparable
+        spaces.
+  \item \textbf{Gating} learns, for each patient, how much to trust each
+        modality: $g \odot \mathbf{h}_{\text{EHR}} + (1 - g) \odot \mathbf{h}_{\text{ECG}}$,
+        with $g \in [0, 1]$ computed from the inputs. Gated multimodal
+        units~\cite{arevalo2017gated} are an early example; FiLM
+        layers~\cite{perez2018film}, where one modality scales and shifts the
+        features of another, are a close relative.
+  \item \textbf{Multiplicative} combinations such as the outer product used by
+        tensor fusion networks~\cite{zadeh2017tensor} model every pairwise
+        interaction explicitly, at a high cost in parameters.
+  \item \textbf{Attention} treats each modality (or each part of it) as a set of
+        tokens and lets them attend to one another (Section~\ref{sec:transformers}).
+  \item \textbf{A learnt shared space} trains the encoders so that matching
+        inputs from the two modalities land close together, as in contrastive
+        learning (Section~\ref{sec:clip}).
+\end{itemize}
+
+\subsection{Fusion in transformers}
+\label{sec:transformers}
+
+Transformers have become the default architecture for multimodal learning,
+because once every modality is turned into a sequence of tokens, the same
+attention machinery applies to all of them. Xu, Zhu \&
+Clifton~\cite{xu2023multimodal} survey the design space. Broadly:
+\begin{itemize}
+  \item \textbf{early summation or concatenation} of the token sequences, fed to one
+        transformer;
+  \item \textbf{hierarchical} designs, which encode each modality separately and
+        then fuse with further layers;
+  \item \textbf{cross-attention}, where the queries come from one modality and
+        the keys and values from another.
+\end{itemize}
+Cross-attention suits time series well: the Multimodal
+Transformer~\cite{tsai2019multimodal} uses it to fuse streams recorded at
+different sampling rates without aligning them first. Attention
+bottlenecks~\cite{nagrani2021attention} restrict the exchange between
+modalities to a few shared tokens, which reduces cost and often helps.
+
+\subsection{Cautions}
+
+Three findings are worth keeping in mind before building anything elaborate.
+\begin{itemize}
+  \item \textbf{Always compare with the best single modality.} A multimodal network
+        trained end to end can do \emph{worse} than a unimodal one, because it
+        overfits more easily and its modalities learn at different
+        rates~\cite{wang2020what}. In jointly trained models the modalities can
+        compete, so that only some are learnt well~\cite{huang2022modality}.
+  \item \textbf{Missing modalities are the norm} in clinical data, and many models
+        degrade sharply when one is absent~\cite{ma2022multimodal}.
+  \item \textbf{More complex fusion is not always better.} A recent benchmark of
+        EHR and chest X-ray fusion~\cite{yin2026when} found that fusion helps most
+        when both modalities are present and complementary, and that the gains
+        shrink quickly when data are missing.
+\end{itemize}
+
+\begin{furtherreading}
+  \item Huang et al.~\cite{huang2020fusion} and Krones et
+        al.~\cite{krones2025review}: fusion strategies in healthcare.
+  \item Xu, Zhu \& Clifton~\cite{xu2023multimodal}: multimodal transformers.
+  \item Wu et al.~\cite{wu2026deep}: a survey of learning with missing
+        modalities.
+  \item Clinical examples: HAIM~\cite{soenksen2022integrated} (embeddings from
+        tabular data, time series, notes and images, combined for many tasks on
+        MIMIC) and MedFuse~\cite{hayat2022medfuse} (clinical time series and chest
+        X-rays, with missing images).
+\end{furtherreading}
+
+
+\section{EHRs as multimodal timelines}
+\label{sec:ehr}
+
+An EHR is itself multimodal and temporal: diagnosis and procedure codes,
+laboratory results, medications, notes, imaging, signals and genomic data, each
+recorded at irregular times over a patient's
+life\todo{cite the source of the EHR timeline figure on slide 15}. A natural way
+to model it is to treat the record as a sequence of \emph{events}, in the way a
+language model treats text as a sequence of tokens.
+
+\paragraph{Next-event prediction.} ETHOS~\cite{renc2024zero} tokenises each
+patient's record into a timeline of medical events and trains a transformer to
+predict the next event. Instead of a sequence of words, the model learns a
+sequence of admissions, tests, results and diagnoses. Because it learns to
+predict whole future trajectories, it can be used \emph{zero-shot}, without
+labelled data or fine-tuning for each task, and can simulate how a patient's
+course might unfold.
+
+\paragraph{Time-to-event prediction.} MOTOR~\cite{steinberg2024motor} goes a
+step further: instead of only the next event, it predicts the distribution of
+the \emph{time} until each of many future events. This uses the temporal
+structure in the data more fully, and suits clinical questions about how risk
+changes over time. It was pretrained on 55 million patient records and adapts
+to new prediction tasks with much less labelled data.
+
+\paragraph{Bringing in more modalities.} Recent work extends these timelines
+beyond structured codes. Kim et al.~\cite{kim2026computable} use language models
+to extract structured clinical information from free-text notes, and combine it
+with the structured record into computable patient journeys.
+NOAH~\cite{susetzky2026noah} models the whole patient journey across the MIMIC
+family of datasets, with modality-specific encoders for structured events,
+text, chest X-rays, ECGs and echocardiograms, a time-aware transformer, and a
+latent patient state.
+
+\begin{furtherreading}
+  \item Wornow et al.~\cite{wornow2023shaky}: a critical review of foundation models
+        for EHRs, and how they should be evaluated.
+  \item EHRSHOT~\cite{wornow2023ehrshot}: a benchmark for few-shot evaluation of
+        EHR foundation models.
+  \item Zhang et al.~\cite{zhang2023improving}: fusing irregularly sampled ICU time
+        series with clinical notes.
+\end{furtherreading}
+
+
+\section{A worked example: ECGs and EHRs}
+\label{sec:ecg_ehr}
+
+ECGs are cheap, quick and recorded in huge numbers, and deep learning has shown
+that they carry far more information than a clinician reads from them. A deep
+network can predict one-year mortality from the 12-lead ECG
+alone~\cite{raghunath2020prediction}, even among ECGs read as normal, and a
+single ECG model can predict hundreds of diagnosis codes from the linked
+EHR~\cite{strodthoff2024prospects}. The question for fusion is whether the EHR
+adds anything the ECG does not already capture, and the other way round.
+
+Khurshid et al.~\cite{khurshid2022ecg} give a clear clinical answer for
+atrial fibrillation (AF). They trained a convolutional network on 12-lead ECGs
+to predict five-year AF risk, and compared it with CHARGE-AF, an established
+risk score built from clinical risk factors in the EHR. The combination of the
+two, a simple form of late fusion, discriminated better than either alone
+across three cohorts, including the UK Biobank. The ECG and the clinical risk
+factors were complementary.
+
+\subsection{In the practical}
+\label{sec:lab}
+
+The practical uses 1{,}000 ECGs from MIMIC-IV-ECG~\cite{gow2023mimicivecg},
+linked to their machine-generated reports and to a small set of EHR fields from
+MIMIC-IV, to predict mortality within one year of the ECG. It works through the
+ideas in these notes:
+\begin{enumerate}
+  \item \textbf{Alignment.} Train a small CLIP-style model (Section~\ref{sec:clip})
+        to align ECGs with their reports, using a 1D version of the ConvNeXt V2
+        architecture~\cite{woo2023convnextv2}, and compare it with a pretrained
+        ECG foundation model, ECGFounder\footnote{\url{https://github.com/PKUDigitalHealth/ECGFounder}}.
+  \item \textbf{Unimodal baselines.} Predict mortality from the EHR alone and from
+        the ECG alone.
+  \item \textbf{Fusion.} Compare early, late and intermediate fusion, and the
+        combination operators of Figure~\ref{fig:fusion_operators}.
+\end{enumerate}
+
+\begin{furtherreading}
+  \item McKeen et al.~\cite{mckeen2025ecgfm}: ECG-FM, an open ECG foundation model
+        evaluated on MIMIC-IV-ECG.
+  \item Saporta et al.~\cite{saporta2024symile}: contrastive learning across more
+        than two modalities, including ECGs, laboratory results and chest
+        X-rays from MIMIC.
+\end{furtherreading}
+
+
+\section{Language models as multimodal backbones}
+\label{sec:llms}
+
+Large language models (LLMs) have become a common hub for multimodal systems.
+Language is flexible enough to describe almost anything, and an LLM brings
+reasoning and world knowledge for free. The question is how to get other
+modalities in.
+
+\subsection{Projecting into the language model}
+
+The most widely copied recipe is LLaVA~\cite{liu2023visual}. Take an existing
+encoder for the new modality (in LLaVA, a pretrained image encoder), add a small
+learnt \emph{projector} that maps its embeddings into the LLM's token-embedding
+space, and fine-tune on instructions. The LLM then reads the projected embeddings
+as if they were words. Flamingo~\cite{alayrac2022flamingo} takes a different
+route, inserting cross-attention layers into a frozen LLM so that its text tokens
+can attend to the image features.
+
+\subsection{Aligning representations: CLIP}
+\label{sec:clip}
+
+For a projector to work, the modality's embeddings must be compatible with the
+language model's representations. CLIP~\cite{radford2021learning} learns such a
+shared space directly, from pairs of images and captions. Given a batch of $N$
+pairs, it encodes each image and each caption, normalises the embeddings
+($\mathbf{e}_i$ and $\mathbf{t}_j$), and computes the similarities
+$s_{ij} = \mathbf{e}_i \cdot \mathbf{t}_j / \tau$, where $\tau$ is a temperature.
+Each image should match its own caption better than the others, so the loss is
+a softmax cross-entropy over each row of the similarity matrix,
+\begin{equation}
+  L_{\text{image}\to\text{text}} = -\frac{1}{N} \sum_{i=1}^{N}
+    \log \frac{\exp(s_{ii})}{\sum_{j=1}^{N} \exp(s_{ij})},
+\end{equation}
+and the same over each column. The CLIP loss is the average of the two
+directions. This is the InfoNCE loss of van den Oord et
+al.~\cite{vandenoord2018representation}. Trained on 400 million pairs from the
+web, CLIP could classify images \emph{zero-shot}, by comparing an image with the
+embeddings of captions such as ``a photo of a dog''.
+
+The same idea transfers to medicine. MERL~\cite{liu2024zeroshot} aligns ECGs with
+their reports, and can then classify ECGs zero-shot from text prompts.
+ImageBind~\cite{girdhar2023imagebind} binds six modalities into one space, using
+images as the hub.
+
+\subsection{Medical examples}
+
+\begin{itemize}
+  \item \textbf{HeLM}~\cite{belyaeva2023multimodal} maps clinical data into an LLM's
+        embedding space. Simple tabular data are written out as text; complex
+        modalities, such as spirograms (a time series of lung function), pass
+        through a learnt encoder. Adding the spirograms improved the
+        prediction of asthma from UK Biobank data.
+  \item \textbf{Med-PaLM M}~\cite{tu2024towards} is a single generalist model for
+        clinical text, medical images and genomics, evaluated on 14 tasks.
+\end{itemize}
+
+\begin{furtherreading}
+  \item Zhang et al.~\cite{zhang2024large}: a survey of LLMs for time series.
+  \item Liu et al.~\cite{liu2025towards}: a survey of cross-modal modelling of time
+        series and text.
+  \item Wearable sensor data and language: Health-LLM~\cite{kim2024healthllm},
+        PH-LLM~\cite{belyaeva2025personal} and SensorLM~\cite{zhang2025sensorlm}.
+  \item ECG-specific multimodal LLMs: GEM~\cite{lan2025gem} and
+        PULSE~\cite{liu2024teach}.
+\end{furtherreading}
+
+
+\section{The LLM context as unifier}
+\label{sec:unifier}
+
+Representation learning, alignment and fusion all need data and engineering
+effort for each new modality. LLMs offer a shortcut, because they are famously
+flexible about their input: anything that can be written down can go in the
+prompt.
+
+Ji et al.~\cite{ji2026portable} test how far this goes for clinical time series.
+They use a frozen LLM to turn each patient's irregular ICU time series into a
+short natural-language summary, then embed the summary with a frozen text
+embedding model. The resulting representations perform competitively with
+imputation, self-supervised learning and time series foundation models on
+MIMIC-IV and two other ICU datasets, and lose less performance when moved to a
+new hospital.
+
+If text is a common currency, a further step is to let the LLM decide for
+itself which data to fetch, which tools to run on them and how to combine the
+results. That is the agentic approach, and the subject of the second half of the
+lecture (Chapter~\ref{chap:lecture_02}).
+
+
+\section{Summary}
+
+\begin{itemize}
+  \item Modalities differ in structure, sampling and noise, but carry related
+        information. Healthcare data are multimodal by nature.
+  \item Fusion can be early, intermediate or late, and embeddings can be combined
+        by concatenation, addition, gating, attention or a learnt shared space.
+        Always compare against the best single modality.
+  \item EHRs can be modelled as multimodal timelines of events, with next-event
+        and time-to-event objectives.
+  \item LLMs act as multimodal backbones, either by projecting other modalities
+        into their embedding space or by reading them as text.
+\end{itemize}

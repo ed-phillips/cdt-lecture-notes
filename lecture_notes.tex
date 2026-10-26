@@ -29,6 +29,12 @@
 % exists, so create e.g. frontmatter/abstract.tex to add an abstract page.
 %
 
+% A short list of pointers at the end of each section
+\newenvironment{furtherreading}
+  {\par\medskip\noindent\textbf{Further reading}\begin{itemize}\setlength{\itemsep}{1pt}}
+  {\end{itemize}\medskip}
+
+
 \makeatletter
 \def\oxfordtitlefilename{frontmatter/titlepage}
 \def\abstractfilename{frontmatter/abstract}
